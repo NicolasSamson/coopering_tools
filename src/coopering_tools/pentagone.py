@@ -18,24 +18,28 @@ class trapezoid:
         self.transformation_matrix = np.eye(3)
 
     
-    def set_center(self, center, rotation=0):
+    def set_center(self, center, rotation=0,degrees=True):
         if isinstance(center, (list, tuple)):
             center = np.array(center)
-        elif isinstance(center, np.ndarray) and center.ndim == 2:
-            center = center.flatten()
+        
 
-
-        rotation_matrix = R.from_euler('z', rotation, degrees=True).as_matrix()
+        rotation_matrix = R.from_euler('z', rotation, degrees=degrees).as_matrix()
         self.transformation_matrix = np.eye(3)
         self.transformation_matrix[:2, :2] = rotation_matrix[:2, :2]
         self.transformation_matrix[:2, 2] = center
         self.center = center
         self.polygon_abs = self.transformation_matrix @ np.vstack((self.polygon, np.ones(self.polygon.shape[1])))
-
+        #print("Transformation Matrix:")
+        #print(self.polygon_abs)
         
-    def area(self):
-        return self.polygon.area
     
+        
+    def plot_trapezoid(self, ax=None):
+        if ax is None:
+            fig, ax = plt.subplots()
+        ax.plot(self.polygon_abs[0, :], self.polygon_abs[1, :], 'g-')
+        ax.scatter(self.center[0], self.center[1], color='green', label='(0,0, 45)',marker='+' )
+        
 
 
 
@@ -43,8 +47,8 @@ def test_sans_rotation(test_translation=True,test_rotation=True):
     t = trapezoid(1, 2, 3)
     
     t.polygon_abs = t.polygon
-    print("Polygon:", t.polygon)
-    print("Polygon Absolute Coordinates:", t.polygon_abs)
+    #print("Polygon:", t.polygon)
+    #print("Polygon Absolute Coordinates:", t.polygon_abs)
 
 
     fig, ax = plt.subplots(1,1)
@@ -58,9 +62,8 @@ def test_sans_rotation(test_translation=True,test_rotation=True):
         ax.plot(t.polygon_abs[0, :], t.polygon_abs[1, :], 'b-')
         ax.scatter(t.center[0], t.center[1], color='blue', label='(1,2, 0)',marker='+' )
     if test_rotation:
-        t.set_center([1, 2], rotation=45)
-        ax.plot(t.polygon_abs[0, :], t.polygon_abs[1, :], 'g-')
-        ax.scatter(t.center[0], t.center[1], color='green', label='(0,0, 45)',marker='+' )
+        t.set_center([2, 2], rotation=45)
+        t.plot_trapezoid(ax=ax)
     ax.legend()
     ax.set_title("Trapezoid Polygon")
     ax.set_xlabel("X-axis")

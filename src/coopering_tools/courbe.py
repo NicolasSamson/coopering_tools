@@ -7,15 +7,15 @@ from matplotlib import pyplot as plt
 
 
 class ExpectedShape:
-    def __init__(self, center, radius, angle, init_angle,thickness,delta_angle = 0.01, degree=False):
+    def __init__(self, center, radius, angle, init_angle,thickness,delta_angle = 0.001, degree=False):
         if isinstance(center, (list, tuple)):
             center = np.array(center)
         elif isinstance(center, np.ndarray) and center.ndim == 2:
             center = center.flatten()
         if isinstance(radius, (list, tuple)):
-            radius = np.array(radius)
+            radius = radius
         elif isinstance(radius, np.ndarray) and radius.ndim == 2:
-            radius = radius.flatten()
+            radius = radius
 
         if degree:
             self.angle = np.deg2rad(angle)
@@ -28,14 +28,17 @@ class ExpectedShape:
         self.thickness = thickness
         self.delta_angle = delta_angle
         self.tfransformation_matrix = np.eye(3)
+        self.inside_r = radius - thickness/2
+        self.outside_r = radius + thickness/2
+    
         self.compute_center_lines()
 
         
     def compute_curve(self,radius):
 
-        aprox_delta_angle = self.angle/((np.ceil(self.angle / self.delta_angle)) )
+        aprox_delta_angle = self.angle/((self.angle / self.delta_angle))
 
-        angles = np.arange(self.init_angle, self.angle + aprox_delta_angle, aprox_delta_angle)
+        angles = np.arange(self.init_angle, self.angle , aprox_delta_angle/2)
 
         points = np.zeros((2, len(angles)))
         for i, angle in enumerate(angles):
@@ -48,11 +51,15 @@ class ExpectedShape:
     def compute_center_lines(self):
 
         self.center_line = self.compute_curve(self.radius)
-        self.inner_line = self.compute_curve(self.radius - self.thickness)
-        self.outer_line = self.compute_curve(self.radius + self.thickness)
+        self.inner_line = self.compute_curve(self.inside_r)
+        self.outer_line = self.compute_curve(self.outside_r)
         #print(self.outer_line.shape, self.inner_line.shape, self.center_line.shape)
-        self.polygon = np.hstack((self.outer_line, np.flipud(self.inner_line), np.array([[self.outer_line[0, 0]], [self.outer_line[1, 0]]]).reshape(2, 1)))
-
+        print(self.inner_line.shape)
+        print(self.inner_line[:,0])
+        print(self.inner_line[:,-1])
+        
+        self.polygon = np.hstack((self.outer_line, np.flipud(self.inner_line.T).T, np.array([[self.outer_line[0, 0]], [self.outer_line[1, 0]]]).reshape(2, 1)))
+        print(self.polygon)
         self.polygon_abs = self.polygon.copy()
         self.center_line_abs = self.center_line.copy()
         self.inner_line_abs = self.inner_line.copy()
@@ -121,7 +128,7 @@ if __name__ == "__main__":
 
     center = [0, 0]
     radius = 1
-    angle = 1.57
+    angle = np.pi 
     init_angle = 0.0
     thickness = 0.1
     expected_shape = ExpectedShape(center, radius, angle, init_angle, thickness)
