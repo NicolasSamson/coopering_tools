@@ -34,11 +34,20 @@ class trapezoid:
         
     
         
-    def plot_trapezoid(self, ax=None):
+    def plot_trapezoid(self, ax=None,unit='m'):
+
+        if unit == 'm':
+            scale = 1
+        elif unit == 'cm':
+            scale = 100
+        elif unit == 'mm':
+            scale = 1000
+        elif unit == 'in':
+            scale = 39.3701
         if ax is None:
             fig, ax = plt.subplots()
-        ax.plot(self.polygon_abs[0, :], self.polygon_abs[1, :], 'g-')
-        ax.scatter(self.center[0], self.center[1], color='green', label='(0,0, 45)',marker='+' )
+        ax.plot(self.polygon_abs[0, :]*scale, self.polygon_abs[1, :]*scale, 'g-')
+        ax.scatter(self.center[0]*scale, self.center[1]*scale, color='green', label='(0,0, 45)',marker='+' )
         
 
 

@@ -119,7 +119,7 @@ class ExpectedShape:
         self.plot_polygon(ax)
         self.plot_center(ax)
         self.plot_frame(ax)
-        ax.set_title("Expected Shape")
+        #ax.set_title("Expected Shape")
         ax.set_xlabel("X-axis")
         ax.set_ylabel("Y-axis")
         
